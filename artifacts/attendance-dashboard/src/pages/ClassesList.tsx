@@ -20,6 +20,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getListClassesQueryKey } from '@workspace/api-client-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const classSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -36,6 +40,8 @@ export default function ClassesList() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingClassId, setEditingClassId] = useState<number | null>(null);
+  const [deleteClassId, setDeleteClassId] = useState<number | null>(null);
+  const [deleteClassName, setDeleteClassName] = useState('');
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -88,15 +94,21 @@ export default function ClassesList() {
     }
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this class? All associated attendance records will be removed.")) {
-      deleteMutation.mutate({ id }, {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListClassesQueryKey() });
-          toast({ title: "Class deleted" });
-        }
-      });
-    }
+  const handleDelete = (id: number, name: string) => {
+    setDeleteClassId(id);
+    setDeleteClassName(name);
+  };
+
+  const confirmDelete = () => {
+    if (!deleteClassId) return;
+    deleteMutation.mutate({ id: deleteClassId }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListClassesQueryKey() });
+        setDeleteClassId(null);
+        toast({ title: "Class deleted" });
+      },
+      onError: () => toast({ title: "Failed to delete class", variant: "destructive" }),
+    });
   };
 
   const FormFields = () => (
@@ -279,7 +291,7 @@ export default function ClassesList() {
                         <Pencil className="w-4 h-4 mr-2" /> Edit Details
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(c.id)}>
+                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDelete(c.id, c.name)}>
                         <Trash2 className="w-4 h-4 mr-2" /> Delete Class
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -314,6 +326,26 @@ export default function ClassesList() {
           ))
         )}
       </div>
+
+      <AlertDialog open={!!deleteClassId} onOpenChange={(open) => { if (!open) setDeleteClassId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{deleteClassName}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the class and all associated attendance records. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
+              Delete Class
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

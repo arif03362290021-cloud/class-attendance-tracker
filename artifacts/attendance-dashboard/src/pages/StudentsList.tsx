@@ -24,6 +24,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getListStudentsQueryKey } from '@workspace/api-client-react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const studentSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -42,6 +46,8 @@ export default function StudentsList() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
+  const [deleteStudentName, setDeleteStudentName] = useState('');
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -111,15 +117,21 @@ export default function StudentsList() {
     }
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Remove student? This will delete all their attendance records permanently.")) {
-      deleteMutation.mutate({ id }, {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
-          toast({ title: "Student removed" });
-        }
-      });
-    }
+  const handleDelete = (id: number, name: string) => {
+    setDeleteStudentId(id);
+    setDeleteStudentName(name);
+  };
+
+  const confirmDelete = () => {
+    if (!deleteStudentId) return;
+    deleteMutation.mutate({ id: deleteStudentId }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListStudentsQueryKey() });
+        setDeleteStudentId(null);
+        toast({ title: "Student removed" });
+      },
+      onError: () => toast({ title: "Failed to remove student", variant: "destructive" }),
+    });
   };
 
   const getClassName = (id: number) => {
@@ -362,7 +374,7 @@ export default function StudentsList() {
                             <Pencil className="mr-2 h-4 w-4" /> Edit Details
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleDelete(student.id)} className="text-destructive focus:text-destructive">
+                          <DropdownMenuItem onClick={() => handleDelete(student.id, student.name)} className="text-destructive focus:text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" /> Delete Student
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -395,6 +407,26 @@ export default function StudentsList() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteStudentId} onOpenChange={(open) => { if (!open) setDeleteStudentId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {deleteStudentName}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the student and all their attendance records. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
+              Remove Student
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
