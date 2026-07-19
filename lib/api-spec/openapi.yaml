@@ -3,20 +3,28 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Student Attendance Dashboard API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: students
+    description: Student management
+  - name: classes
+    description: Class/course management
+  - name: attendance
+    description: Attendance records
+  - name: excuses
+    description: Absence excuse analysis
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +32,420 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Students ──────────────────────────────────────────────────────────────
+  /students:
+    get:
+      operationId: listStudents
+      tags: [students]
+      summary: List all students
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Create a student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+
+  /students/{id}:
+    get:
+      operationId: getStudent
+      tags: [students]
+      summary: Get a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Student
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateStudent
+      tags: [students]
+      summary: Update a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+    delete:
+      operationId: deleteStudent
+      tags: [students]
+      summary: Delete a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Classes ───────────────────────────────────────────────────────────────
+  /classes:
+    get:
+      operationId: listClasses
+      tags: [classes]
+      summary: List all classes
+      responses:
+        "200":
+          description: List of classes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Class"
+    post:
+      operationId: createClass
+      tags: [classes]
+      summary: Create a class
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClassInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+
+  /classes/{id}:
+    get:
+      operationId: getClass
+      tags: [classes]
+      summary: Get a class
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Class
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateClass
+      tags: [classes]
+      summary: Update a class
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClassUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+    delete:
+      operationId: deleteClass
+      tags: [classes]
+      summary: Delete a class
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Attendance ────────────────────────────────────────────────────────────
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: List attendance records
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: date
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Attendance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+    post:
+      operationId: createAttendance
+      tags: [attendance]
+      summary: Create or upsert an attendance record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+
+  /attendance/{id}:
+    patch:
+      operationId: updateAttendance
+      tags: [attendance]
+      summary: Update an attendance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceRecord"
+
+  /attendance/bulk:
+    post:
+      operationId: bulkUpsertAttendance
+      tags: [attendance]
+      summary: Bulk upsert attendance for a class on a date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkAttendanceInput"
+      responses:
+        "200":
+          description: Upserted
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceRecord"
+
+  # ── Dashboard Stats (wow) ─────────────────────────────────────────────────
+  /attendance/stats:
+    get:
+      operationId: getAttendanceStats
+      tags: [attendance]
+      summary: Aggregate attendance stats for the dashboard
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: startDate
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: endDate
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceStats"
+
+  /attendance/trends:
+    get:
+      operationId: getAttendanceTrends
+      tags: [attendance]
+      summary: Daily attendance rate trend over time
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: days
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Trend data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AttendanceTrendPoint"
+
+  /attendance/at-risk:
+    get:
+      operationId: getAtRiskStudents
+      tags: [attendance]
+      summary: Students with attendance rate below threshold
+      parameters:
+        - name: classId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: threshold
+          in: query
+          schema:
+            type: ["number", "null"]
+      responses:
+        "200":
+          description: At-risk students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AtRiskStudent"
+
+  # ── AI Excuse Analysis ────────────────────────────────────────────────────
+  /excuses/analyze:
+    post:
+      operationId: analyzeExcuse
+      tags: [excuses]
+      summary: Analyze an absence excuse with AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExcuseAnalysisInput"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExcuseAnalysisResult"
+
+  /excuses:
+    get:
+      operationId: listExcuses
+      tags: [excuses]
+      summary: List saved excuse analyses
+      parameters:
+        - name: studentId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: verdict
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: List of excuses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExcuseRecord"
+    post:
+      operationId: saveExcuse
+      tags: [excuses]
+      summary: Save an analyzed excuse to a student record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExcuseSaveInput"
+      responses:
+        "201":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExcuseRecord"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +453,319 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    # ── Student ──────────────────────────────────────────────────────────────
+    Student:
+      type: object
+      required: [id, name, studentId, classId, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        studentId:
+          type: string
+          description: School-assigned ID (e.g. STU-001)
+        classId:
+          type: integer
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        photoUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    StudentInput:
+      type: object
+      required: [name, studentId, classId]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        studentId:
+          type: string
+          minLength: 1
+        classId:
+          type: integer
+        email:
+          type: string
+        phone:
+          type: string
+        photoUrl:
+          type: string
+
+    StudentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+        phone:
+          type: string
+        photoUrl:
+          type: string
+        classId:
+          type: integer
+
+    # ── Class ─────────────────────────────────────────────────────────────────
+    Class:
+      type: object
+      required: [id, name, subject, teacherName, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        subject:
+          type: string
+        teacherName:
+          type: string
+        schedule:
+          type: ["string", "null"]
+        room:
+          type: ["string", "null"]
+        studentCount:
+          type: integer
+        createdAt:
+          type: string
+
+    ClassInput:
+      type: object
+      required: [name, subject, teacherName]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        subject:
+          type: string
+          minLength: 1
+        teacherName:
+          type: string
+          minLength: 1
+        schedule:
+          type: string
+        room:
+          type: string
+
+    ClassUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        subject:
+          type: string
+        teacherName:
+          type: string
+        schedule:
+          type: string
+        room:
+          type: string
+
+    # ── Attendance ────────────────────────────────────────────────────────────
+    AttendanceRecord:
+      type: object
+      required: [id, studentId, classId, date, status, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        classId:
+          type: integer
+        date:
+          type: string
+          description: ISO date string YYYY-MM-DD
+        status:
+          type: string
+          enum: [present, absent, late, excused]
+        notes:
+          type: ["string", "null"]
+        studentName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    AttendanceInput:
+      type: object
+      required: [studentId, classId, date, status]
+      properties:
+        studentId:
+          type: integer
+        classId:
+          type: integer
+        date:
+          type: string
+        status:
+          type: string
+          enum: [present, absent, late, excused]
+        notes:
+          type: string
+
+    AttendanceUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [present, absent, late, excused]
+        notes:
+          type: string
+
+    BulkAttendanceInput:
+      type: object
+      required: [classId, date, records]
+      properties:
+        classId:
+          type: integer
+        date:
+          type: string
+        records:
+          type: array
+          items:
+            type: object
+            required: [studentId, status]
+            properties:
+              studentId:
+                type: integer
+              status:
+                type: string
+                enum: [present, absent, late, excused]
+              notes:
+                type: string
+
+    # ── Stats ─────────────────────────────────────────────────────────────────
+    AttendanceStats:
+      type: object
+      required: [totalStudents, totalDays, presentCount, absentCount, lateCount, excusedCount, attendanceRate]
+      properties:
+        totalStudents:
+          type: integer
+        totalDays:
+          type: integer
+        presentCount:
+          type: integer
+        absentCount:
+          type: integer
+        lateCount:
+          type: integer
+        excusedCount:
+          type: integer
+        attendanceRate:
+          type: number
+          description: 0-100 percentage
+
+    AttendanceTrendPoint:
+      type: object
+      required: [date, presentRate, absentRate, lateRate]
+      properties:
+        date:
+          type: string
+        presentRate:
+          type: number
+        absentRate:
+          type: number
+        lateRate:
+          type: number
+        totalRecords:
+          type: integer
+
+    AtRiskStudent:
+      type: object
+      required: [studentId, studentName, classId, className, attendanceRate, absentDays]
+      properties:
+        studentId:
+          type: integer
+        studentName:
+          type: string
+        classId:
+          type: integer
+        className:
+          type: string
+        attendanceRate:
+          type: number
+        absentDays:
+          type: integer
+        totalDays:
+          type: integer
+
+    # ── Excuse Analysis ───────────────────────────────────────────────────────
+    ExcuseAnalysisInput:
+      type: object
+      required: [excuseText]
+      properties:
+        excuseText:
+          type: string
+          minLength: 1
+        studentName:
+          type: string
+        date:
+          type: string
+
+    ExcuseAnalysisResult:
+      type: object
+      required: [verdict, confidence, reasoning, suggestedAction]
+      properties:
+        verdict:
+          type: string
+          enum: [Valid, Invalid, Needs Review]
+        confidence:
+          type: number
+          description: 0-1 confidence score
+        reasoning:
+          type: string
+        suggestedAction:
+          type: string
+        keyFactors:
+          type: array
+          items:
+            type: string
+
+    ExcuseRecord:
+      type: object
+      required: [id, studentId, excuseText, verdict, reasoning, createdAt]
+      properties:
+        id:
+          type: integer
+        studentId:
+          type: integer
+        studentName:
+          type: ["string", "null"]
+        attendanceId:
+          type: ["integer", "null"]
+        excuseText:
+          type: string
+        verdict:
+          type: string
+          enum: [Valid, Invalid, Needs Review]
+        confidence:
+          type: ["number", "null"]
+        reasoning:
+          type: string
+        suggestedAction:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ExcuseSaveInput:
+      type: object
+      required: [studentId, excuseText, verdict, reasoning]
+      properties:
+        studentId:
+          type: integer
+        attendanceId:
+          type: integer
+        excuseText:
+          type: string
+        verdict:
+          type: string
+          enum: [Valid, Invalid, Needs Review]
+        confidence:
+          type: number
+        reasoning:
+          type: string
+        suggestedAction:
+          type: string
