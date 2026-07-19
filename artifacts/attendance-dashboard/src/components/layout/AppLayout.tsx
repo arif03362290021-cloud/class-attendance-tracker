@@ -9,7 +9,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   const navItems = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Classes', href: '/classes', icon: BookOpen },
     { name: 'Students', href: '/students', icon: Users },
     { name: 'Excuses', href: '/excuses', icon: FileCheck },
