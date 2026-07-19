@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface ClassUpdate {
+  name?: string;
+  subject?: string;
+  teacherName?: string;
+  schedule?: string;
+  room?: string;
 }
