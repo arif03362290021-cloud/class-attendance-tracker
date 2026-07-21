@@ -28,5 +28,6 @@ simply open this Replit link and click the "Run" button.
 <img width="1080" height="2460" alt="1000228438" src="https://github.com/user-attachments/assets/79bcc9b5-8e0f-4567-9a17-bc21a65952d4" />
 <img width="1080" height="2460" alt="1000228439" src="https://github.com/user-attachments/assets/dd628281-0085-4bcb-ae72-a2a75bf3dc8d" />
 <img width="1080" height="2460" alt="1000228440" src="https://github.com/user-attachments/assets/e001d30f-3d9b-40b8-9b75-c62124c8a809" />
-<img width="1080" height="2460" alt="1000228441" src="https://github.com/user-attachments/assets/df3de032-a486-49c6-bf8a-4fc70eafbac6" />
-<img width="1080" height="2460" alt="1000228442" src="https://github.com/user-attachments/assets/a1a6c57f-edbc-4562-a708-6359cef3fe7f" />
+<img width="1080" height="2460" alt="1000228441" src="https://github.com/user-attachments/assets/df3de032-a486-49c6-bf8a-4fc70eafbac6" /><img width="1080" height="2460" alt="1000229178" src="https://github.com/user-attachments/assets/3ea832e5-3534-4320-a4cb-101af255ef56" />
+<img width="1080" height="2460" alt="1000229179" src="https://github.com/user-attachments/assets/e2d57e0d-c833-4b85-bc55-5c95b38c343f" />
+<img width="1080" height="2460" alt="1000229180" src="https://github.com/user-attachments/assets/daab55ad-ba73-47a6-95f9-845dba6350b1" />
